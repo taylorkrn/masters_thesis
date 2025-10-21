@@ -1,0 +1,649 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Theory}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Preliminaries}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Measure Spaces}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[Probability Space]
+  Probablity space $(\Omega, \mathcal{F}, \mu)$ \\
+  $\Omega$: Space of all possible initial states \\
+  $\mathcal{F}$: $\sigma-$algebra of distinguished subsets of $\Omega$ \\
+  $\mu: \mathcal{F} \rightarrow \infty$ probability measure
+\end{definition}
+
+
+\begin{definition}[Measurable Covariate Space]
+  $(\mathcal{X}, \Sigma_{\mathcal{X}})$ Measureable Covariate Space \\
+  For each time $t \geq 0$, data-producing measurable functions: \\
+  $X_t : \Omega \rightarrow \mathcal{X}$, with $x_t := X_t(\omega)$ for some $\omega \in \Omega$ \\
+  $\mathcal{X}$ doesn't need to be linear!
+\end{definition}
+
+\begin{definition}[Measurable Response Space] 
+  $(\mathcal{Y}, \Sigma_{\mathcal{Y}})$ Measureable Response Space \\
+  For each time $t \geq 0$, data-producing measurable functions: \\
+  $Y_t : \Omega \rightarrow \mathcal{Y}$, with $y_t := Y_t(\omega)$ for some $\omega \in \Omega$ \\
+  $\mathcal{Y}$ is a Hilbert Space over the Complex numbers. \\
+  Inner product $\left<\cdot, \cdot\right>_{\mathcal{Y}}$ conjugate-linear in the first argument.
+\end{definition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Forecasting}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[Function Spaces]
+  $\mathbb{L}^2(\mu)$: space of functions $f: \Omega \rightarrow \mathcal{Y}$ that are square-integrable. \\
+  $L^2(\mu)$ space of equivalence classes of $\mathbb{L}^2(\mu)$ functions that are equal $\mu$-a.e. \\ 
+  Define $\mu_{X_t}$ as the 'pushforward' of $\mu$ along $X_t$ 
+  $$
+  \forall S \in \Sigma_X, \mu_{X_t}(S) = \mu(X_t^{-1}(S))
+  $$
+  $\mathbb{L}^2(\mu_{X_t})$: space of functions $f: \mathcal{X} \rightarrow \mathcal{Y}$ that are square-integrable. \\
+  $L^2(\mu_{X_t})$ space of equivalence classes of $\mathbb{L}^2(\mu_{X_t})$ functions that are equal $\mu_{X_t}$-a.e.
+\end{definition}
+
+
+\begin{definition}[Task]
+  Produce measurable $f_\tau : \mathcal{X} \rightarrow \mathcal{Y}$ for any 'lead time' $\tau$,
+  such that $f_\tau \circ X_t$ approximates $Y_{\tau+t}$. \\
+  How do we define 'approximation'? Mean Squared Error. \\
+  Regard $Y_t$ as an element of $\mathbb{L}^2(\mu)$. \\
+  Search for $f_\tau$ in $\mathbb{L}^2(\mu_{X_t})$. \\ 
+  As $f_\tau$ square integrable means that
+  \begin{align*}
+    \int_S \left<f_\tau(x_t),f_\tau(x_t)\right>_{\mathcal{Y}} d \mu_{X_t}(x_t) = \int_S \overline{f_\tau(x_t)}f_\tau(x_t) d \mu_{X_t}(x_t) < \infty
+  \end{align*}
+  This is equivalent to
+
+  $$
+  \int_{X_t^{-1}(S)} \overline{f_\tau(X_t(\omega))}f_\tau(X_t(\omega)) d \mu(\omega) = \int_{X_t^{-1}(S)} \overline{f_\tau \circ X_t (\omega)}f_\tau \circ X_t(\omega) d \mu(\omega) < \infty
+ $$
+
+  So, $f \circ X_t \in \mathbb{L}^2$ for all $P \in \mathcal{F}$ such that $X_t(P) \in \Sigma_X$. NOTE THAT THIS DOES NOT HAVE TO BE ALL OF $\Omega$ \\
+  Mean Squared Error:
+  \begin{equation}
+    \label{eq:mse}
+    \lVert f_\tau \circ X_t - Y_{t+\tau} \rVert^2_{L^2(\mu)} = \int_{\Omega} \lVert f_\tau \circ X_t - Y_{t+\tau} \rVert^2_{\mathcal{Y}} d\mu(\omega)
+  \end{equation}
+\end{definition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Dynamical System Framework}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[Dynamical System]
+  Semigroup of measurable maps: $\{\Phi^t : \Omega \rightarrow \Omega \}_{t \geq 0}$ which evolve initial state $\omega_0$ to $\omega_t$. \\
+  So, exists $X: \Omega \rightarrow \mathcal{X}$ such that $X_t = X \circ \Phi^t$.
+
+  Similarly, $Y_{\tau+t} = Y \circ \Phi^{t+\tau} = (Y \circ \Phi^\tau) \circ \Phi^t$, with $Y : \Omega \rightarrow \mathcal{Y}$.
+
+  \textbf{Koopman Operator} \cite{Koopman}: \\
+  $$
+  \{ U^\tau: U^\tau Y = Y \circ \Phi^\tau \}_{\tau \geq 0}
+  $$
+
+  $U^\tau$ is an intrinsically linear operator - $U^\tau(af + bg) = a U^\tau f + b U^\tau g$
+
+  ASSUME THAT THE DYNAMICAL SYSTEM IS MEASURE-PRESERVING:
+  $$
+  \forall \tau \geq 0, P \in \Omega, \mu(P) = \mu(\Phi^\tau ( P )
+  $$
+
+  This means that the Koopman operator is a unitary operator on $L^2(\mu)$: $U^* U = U U^* = I$
+
+  So, the mean square error is independent of initialization time $t$
+  $$
+  \forall t \geq 0, \lVert f_\tau \circ X_t - U^\tau Y_t \rVert^2_{L^2(\mu)} = \lVert f_\tau \circ X - U^\tau Y \rVert^2_{L^2(\mu)}
+  $$
+\end{definition}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Conditional Expecation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[Sub Sigma-Algebra]
+  Random variable $X: \Omega \rightarrow \mathcal{X}$ induces Sub-$\sigma$-Algebra $\mathcal{G} \subseteq \mathcal{F}$, with $\mathcal{G} := X^{-1}(\Sigma_X)$.\\
+  Then, for all functions $g: \Omega \rightarrow \mathcal{Y}$ measurable w.r.t. $\mathcal{G}$, there exists an $f: \mathcal{X} \rightarrow \mathcal{Y}$ s.t. $g = f \circ X$.
+  
+  $\mathcal{G}$-measurable functions are coarser than $\mathcal{F}$-measurable functions as the take constant values on subsets of $\Omega$ where $X$ is constant.
+
+  $L^2_X(\mu)$ the Hilbert subspace of $L^2(\mu)$ consisting of $\mathcal{G}$-measurable equivalence classes.
+
+  \begin{align*}
+    \Xi: L^2(\mu_X) & \rightarrow L^2(\mu) \\
+                  f & \mapsto f \circ X
+  \end{align*}
+
+  The range of $\Xi$ is $L^2_X(\mu)$.
+\end{definition}
+
+\begin{theorem}[Radon-Nikodym Theorem]
+  TODO 
+\end{theorem}
+
+\begin{corollary}
+  For $U^\tau Y \in L^2(\mu)$, there exists a unique $\mathcal{G}$-measurable element $Z_\tau \circ X \in L^2(\mu)$ such that
+  $$
+  \forall g \in L^2_X(\mu), \left<g, U^\tau Y \right>_{L^2(\mu)} = \left<g, Z_\tau \circ X \right>_{L^2(\mu)} = \int_\Omega \left<g(\omega), (Z_\tau \circ X)(\omega) \right>_{\mathcal{Y}} d \mu (\omega)
+  $$
+  It follows that $Z_\tau \circ X$ is the unique element in $L^2(\mu_X)$ that minimizes the Mean Square Error \eqref{eq:mse}.
+\end{corollary}
+
+\begin{definition}[Regression Function]
+  $Z_\tau$ is the regression function. \\
+The conditional expectation $\mathbb{E}[U^\tau Y | X] := Z_\tau \circ X$. \\
+\end{definition}
+
+\begin{theorem}[Hilbert Space Projection Theorem]
+  $\mathbb{E}[U^\tau Y | X]$ is the orthogonal projection of $U^\tau Y$ onto $L^2_X(\mu)$.
+
+  $$
+  \mathbb{E}[U^\tau Y | X] = \Pi_X U^\tau Y
+  $$
+  with $\Pi_X : L^2(\mu) \rightarrow L^2(\mu)$ being the orthogonal projection mapping into $L^2_X(\mu)$. \\
+
+  As the conditional expectation exists in $L^2_X(\mu)$, there exists a unique $Z_\tau \in L^2(\mu_X)$ such that
+
+  $$
+  \mathbb{E}[U^\tau Y | X] = \Xi Z_\tau = Z_\tau \circ X
+  $$
+\end{theorem}
+
+\begin{definition}[Adjoint Map]
+ $\Xi^* : L^2(\mu) \rightarrow L^2(\mu_X)$ with ker$\Xi^* = \left( L^2_X(\mu) \right)^\perp$. 
+\end{definition}
+
+Then the regression function at lead time $\tau$ associated with response $Y$ and covariate $X$ is:
+$$
+Z_\tau = \Xi^* U^\tau Y = \Xi^* \mathbb{E}[U^\tau Y | X]
+$$
+
+GOAL: Seek forecasting algorithm that produces target functions to consistently approximate $Z_\tau$. \\
+SHOW: KAF naturally produces such consistent estimators from time-ordered samples of $X$ and $Y$ along a dynamical trajectory, WITHOUT requiring prior knowledge of underlying equations of motion
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Hypothesis Spaces}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{definition}
+  \textbf{Inclusion Map}
+  $$
+  \iota : \mathbb{L}^2(\mu_X) \rightarrow L^2(\mu_X)
+  $$
+  Associates a concrete function to its equivalence class. \\
+  \textbf{Mean Square Error}
+  \begin{align*}
+    \mathcal{E}_\tau : \mathbb{L}^2(\mu_X) & \rightarrow \mathbb{R} \\
+                  f & \mapsto \lVert \iota f \circ X - U^\tau Y \rVert^2_{L^2(\mu)} 
+  \end{align*}
+\end{definition}
+
+\begin{definition}[Excess Generalization Error]
+  \label{def:egError}
+  \begin{align}
+    \label{eq:egError}
+    \mathcal{A}_\tau(f) = \lVert \iota f - Z_\tau \rVert^2_{L^2(\mu_X)}
+  \end{align}
+\end{definition}
+
+\begin{definition}[Intrinsic Error]
+  \begin{align}
+    \label{eq:intrinsicError}
+    \sigma_\tau = \lVert Z_\tau \circ X - U^\tau Y \rVert^2_{L^2(\mu)}
+  \end{align}
+\end{definition}
+
+As $L^2(\mu)$ is a Hilbert Space, and $Z_\tau \circ X$ minimizes the conditional expectation, then we can then decompose
+$$
+\mathcal{E}_\tau(f) = \mathcal{A}_\tau(f) + \sigma_\tau
+$$
+As $\sigma_\tau$ is independent of $f$, then minimizing $\mathcal{E}_\tau$ is equivalent to minimizing $\mathcal{A}_\tau$.
+
+\begin{definition}[Hypothesis Space]
+  Constraints required during the search for a minimizer of $\mathcal{A}_\tau$ are defined in terms of a hypothesis space $\mathcal{H} \subseteq \mathbb{L}^2(\mu_X)$.
+
+  If $H := \iota \mathcal{H}$ is a closed and convex subset of $L^2(\mu_X)$, then there exists a unique $g \in H$ usch that
+  $$
+  \inf_{h \in H} \lVert h - Z_\tau \rVert_{L^2(\mu_X)} = \lVert g - Z_\tau \rVert_{L^2(\mu_X)}
+  $$
+
+  Therefore, there exists an $f \in \mathcal{H}$ for which $\iota f = g$, and thus
+  $$
+  \inf_{f \in \mathcal{H}} \lVert \iota f - Z_\tau \rVert_{L^2(\mu_X)} = \lVert g - Z_\tau \rVert_{L^2(\mu_X)}
+  $$
+ 
+  If $\iota : \mathcal{H} \rightarrow L^2(\mu_X)$ is an injection, then $f$ is unique.
+\end{definition}
+
+\begin{definition}[Pseudoinverse]
+  Assuming that $H$ is closed and convex in $L^2(\mu_X)$, then there exists a well-definied orthogonal projection map into $H$
+  $$
+  \Pi_H : L^2(\mu_X) \rightarrow L^2(\mu_X)
+  $$
+  Then the Excess Generalization Error (Definition \ref{def:egError}) may be decomposed as:
+  $$
+  \mathcal{A}_\tau (f) = \lVert \iota f - \Pi_H Z_\tau \rVert^2_{L^2(\mu_X)} + \lVert (I - \Pi_H) Z_\tau \rVert^2_{L^2(\mu_X)}
+  $$
+  So, the minimizer of $\mathcal{A}_\tau$ over $\mathcal{H}$ is found by minimizing $\lVert \iota f - \Pi_H Z_\tau \rVert^2_{L^2(\mu_X)}$.
+  If $\iota$ is injective on $\mathcal{H}$, then $\iota \rvert_{\mathcal{H}} : \mathcal{H} \rightarrow H$ is invertible.
+\end{definition}
+
+\begin{definition}[Ideal Target Function]
+  The ideal target function at lead time $\tau$ associated with $\mathcal{H}$ hypothesis space minimizes $\mathcal{A}_\tau$ over $\mathcal{H}$.\\  
+  Then, there is a unique minimizer of $\mathcal{A}_\tau$ in $\mathcal{H}$.
+  \begin{align}
+    \label{eq:idealTargetFunction}
+    f_{\tau, \mathcal{H}} = \left( \iota \rvert_{\mathcal{H}} \right)^{-1} \Pi_H Z_\tau
+  \end{align}
+  Defined by the map $T = \left( \iota \rvert_{\mathcal{H}} \right)^{-1} \Pi_H$, which we call the \textbf{Pseudoinverse of $\iota$ on $\mathcal{H}$}.\\
+  Then,
+  \begin{align}
+    \label{eq:minimizer}
+    \mathcal{A}_\tau (f_{\tau, \mathcal{H}}) = \lVert (I - \Pi_H) Z_\tau \rVert^2_{L^2(\mu_X)}
+  \end{align}
+\end{definition}
+
+\begin{definition}[Moore-Penrose pseudoinverse]
+  $T \iota f = f$ for every $f \in \mathcal{H}$ and $Tg = 0$ for every $g \in H^\perp$.
+  So $T$ reduces to the \textbf{Moore-Penrose pseudoinverse} $\iota^+$ of $\iota$ if $\mathcal{H}$ is a hilbert space.
+  TODO
+\end{definition}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Reproducing Kernel Hilbert Spaces}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Finite-Dimensional subspace of Ambient Hilbert Space}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[Ambient Hilbert Space]
+  KAF focusses on the case where $\mathcal{H}$ is a finite-dimensional subspace of an ambient Hilbert Space $\mathcal{K}$ that $\iota$ compactly embeds into $L^2(\mu_X)$.
+  
+  $\mathcal{H} \subset \mathcal{K} \subseteq L^2(\mu_X)$.
+
+  Let $\left< \cdot , \cdot \right>_{\mathcal{K}}$ be the inner product of $\mathcal{K}$ (conjugate-linear in first argument).  
+\end{definition}
+
+\begin{lemma}
+  $\iota$ is a compact operator between Hilbert Spaces
+\end{lemma}
+\begin{proof}
+  Basic - TODO
+\end{proof}
+
+\begin{lemma}
+  The adjoint $\iota^* : L^2(\mu_X \rightarrow \mathcal{K}$ is well-defined and comapct.
+\end{lemma}
+\begin{proof}
+  Basic - TODO
+\end{proof}
+
+\begin{definition}[Self-Adjoint Operator]
+  \begin{equation}
+    \label{eq:selfAdjointG}
+    G := \iota \iota^* : L^2(\mu_X) \rightarrow L^2(\mu_X)
+  \end{equation}
+\end{definition}
+
+\begin{theorem}[Spectral Theorem For Compact, self-adjoint Operators]
+  There exists an Orthonormal basis $\{\phi_i\}^\infty_{i=1}$ of $L^2(\mu_X)$, consisting of eigenfunctions of $G$, with non-negative corresponding eigenvalues $\lambda_i$.
+  
+  By ordering eigenvalues decreasingly, the sequence $\lambda_1, \lambda_2, \dots$ only accumulates at $0$ (Compactness of $G$)
+\end{theorem}
+\begin{proof} 
+ Basic - TODO 
+\end{proof}
+
+\begin{definition}[The $l$-dimensional subspace]
+  Choose an $l \in \mathbb{N}$, such that $\forall i \leq l,  \lambda_i > 0$ 
+  \begin{align}
+    \label{eq:nromalisedEigenfunctions}
+    \psi_i & : L^2(\mu_X) \rightarrow \mathcal{K} \\
+            & = \iota^* \frac{\phi_i}{\sqrt{\lambda_i}}
+  \end{align}
+
+  Now, we have the subspace $\mathcal{H}_l \subseteq \mathcal{K}$, with
+  \begin{equation}
+    \label{eq:subspace}
+    \mathcal{H}_l = \text{span} \{\psi_1, \dots, \psi_l\}.
+  \end{equation}
+
+  As $\phi_i$ are orthonormal in $L^2(\mu_X)$, then $\psi_i$ are orthonormal in $\mathcal{K}$, or $\left< \psi_i, \psi_j \right>_{\mathcal{K}} = \delta_{ij}$.
+\end{definition}
+
+\begin{lemma}
+  $\{\psi_i\}_{i=1}^l$ are othornormal eigenfunctions of the operator $\tilde{G} := \iota^* \iota$ on $\mathcal{K}$, such that
+  $$
+  \tilde{G} \psi_i = \lambda_i \psi_i
+  $$
+  
+  In fact, $\forall h \in L^2(\mu_X)$
+  $$
+  \iota^* h = \sum_{i;\lambda_i > 0} \psi_i \sqrt{\lambda_i} \left<\phi_i, h\right>_{L^2(\mu_X)}
+  $$
+
+  By defining $H_l := \iota \mathcal{H}_l$, it follows that $\Pi_{H_l}$ is the $L^2(\mu_X)$-orthogonal projection with range span$\{\phi_1, \dots, \phi_l\}$.
+\end{lemma}
+\begin{proof}
+  TODO
+\end{proof}
+
+\begin{lemma}
+  The inverse $\left( \iota \rvert_{\mathcal{H}_l} \right)^-1$ acts on any eigenfunction $\phi_i$ with nonzero $\lambda_i$ as:
+  $$
+  \left( \iota \rvert_{\mathcal{H}_l} \right)^-1 \phi_i = \left( \iota \rvert_{\mathcal{H}_l} \right)^-1 \iota \iota^* \frac{\phi_i}{\lambda_i} = \frac{\psi_i}{\sqrt{\lambda_i}}
+  $$
+\end{lemma}
+\begin{proof} 
+ TODO - EASY 
+\end{proof}
+
+\begin{definition}
+  Through the following definition
+ \begin{equation}
+  \label{eq:alpha}
+  \alpha_i(\tau) = \left< \phi_i \circ X, U^\tau Y \right>_{L^2(\mu)}
+ \end{equation}
+
+ we can expand the regression function $Z_\tau \in L^2(\mu)$ as 
+ $$
+ Z_\tau = \sum_{i=1}^\infty \alpha_i(\tau)\phi_i
+ $$
+
+ and consequently the target function $f_{\tau, l}$ as
+ $$
+ f_{\tau,l} = T_l Z_\tau = \sum_{i=1}^l \frac{\alpha_i(\tau)}{\sqrt{\lambda_i}}\psi_i
+ $$
+\end{definition}
+
+\begin{lemma}
+  Considering the image $K = \iota \mathcal{K}$, it can be characterised as the subspace
+
+  $$
+  K = \left\{ \sum_{i : \lambda_i > 0} c_i \phi_i \in L^2(\mu_X) : \sum_{i : \lambda_i > 0} \frac{\lvert c_i \rvert^2}{\lambda_i} \right\}
+  $$
+\end{lemma}
+\begin{proof}
+ TODO 
+\end{proof}
+
+\begin{lemma}
+  \label{lem:lemma4}
+  With dense domain
+  $$
+  D(\tilde{T}) := K \oplus \text{ker} \iota \subseteq L^2(\mu_X)
+  $$
+  We can define the operator $\tilde{T} : D(\tilde{T}) \rightarrow \mathcal{K}$ by:
+  $$
+  \tilde{T} f = \sum_{i: \lambda_i > 0} \left< \phi_i, f \right>_{L^2(\mu_X)} \frac{\psi_i}{\sqrt{\lambda_i}}
+  $$
+  This is a closed-range operator whose pseudoinverse $\tilde{T}^+ : \mathcal{K} \rightarrow L^2(\mu_X)$ is equal to $\iota$. \\
+  Moreover, $\tilde{T}$ is equal to the pseudoinverse of $\iota$, and (SEE APPENDIX A.1), we have $\forall f \in D(G^+)$
+  $$
+  \tilde{T} f = \iota^* G^+ f,
+  $$
+\end{lemma}
+\begin{proof}[Proof with Moore-Penrose pseudoinverse]
+  TODO
+\end{proof}
+
+\begin{lemma}
+  \label{lem:lemma5}
+As $l \rightarrow \infty, \iota T_l$ converges strongly to the orthogonal projection $\Pi_{\overline{K}} : L^2(\mu_X) \rightarrow L^2(\mu_X)$ onto
+the $L^2(\mu_X)$-closure of $K$; that is, $\forall f \in L^2(\mu_X)$
+$$
+\lim_{l \rightarrow \infty} \iota T_l f = \Pi_{\overline{K}} f
+$$
+\end{lemma}
+\begin{proof}[Important]
+  TODO
+\end{proof}
+
+We now need to ensure that $\mathcal{K}$ is emprically constructable with dense image $K = \iota \mathcal{K}$ in $L^2(\mu_X)$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{RKHS}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Assume, from now on, that $\mathcal{Y} = \mathbb{C}$, then $\mathcal{K}$ naturally becomes a RKHS.
+
+\begin{definition}[RKHS]
+  For each $x \in \mathcal{X}$, let $L_x : \mathcal{K} \rightarrow \mathbb{C}$ be the evaluation function defined by $L_x f = f(x)$.
+  $\mathcal{K}$ is a an RKHS if $L_x$ is bounded at every $x \in \mathcal{X}$. 
+\end{definition}
+
+\begin{theorem}[Axiom Of Choice]
+  Due to the axiom of choice, we know that all explicitly representable target functions $f_{\tau, \mathcal{H}}$ lie in an RKHS.
+\end{theorem}
+\begin{proof}
+ TODO? 
+\end{proof}
+
+
+\begin{theorem}[Riesz Representation Theorem]
+  For every $x \in \mathcal{X}$, there exists some function $k_x \in \mathcal{K}$ such that
+  $$
+  \forall f \in \mathcal{K}, f(x) = L_x f = \left<k_x, f\right>_{\mathcal{K}}
+  $$
+\end{theorem}
+\begin{proof}
+  BLACK BOX 
+\end{proof}
+
+\begin{definition}[Reproducing Kernel]
+  $k: \mathcal{X} \times \mathcal{X} \rightarrow \mathbb{C}$
+
+  $$
+k(x_1,x_2) = \left<k_{x_1}, k_{x_2}\right>_{\mathcal{K}}
+  $$
+  Conjugate Symmetric and Positive Definite
+\end{definition}
+
+\begin{theorem}[Moore-Aronszajn Theorem]
+  For any conjugate-symmetric, positive-definite kernel function $k$, there exists a unique RKHS on $\mathcal{X}$ for which $k$ is the reproducing kernel.
+
+  There is a one-to-one correspondence between kernels and RKHSs.
+\end{theorem}
+\begin{proof}
+  BLACK BOX 
+\end{proof}
+
+\begin{definition}[Embedding $\mathcal{K}$ into $L^2(\rho)$]
+  Let $\rho: \Sigma_{\mathcal{X}} \rightarrow [0,\infty]$ be any measure such that there exists a compact embedding $\iota_\rho$ of RKHS $\mathcal{K}$ into $L^2(\rho)$. \\
+  RKHSs are so useful due to the adjoint $\iota^*_\rho : L^2(\mathcal{X}) \rightarrow \mathcal{K}$.
+  \begin{align*}
+    \iota^*_\rho f(x) & = \left<k_x, \iota^*_\rho f\right>_{\mathcal{K}} \\
+                      & = \left< \iota_\rho k_x,  f\right>_{L^2(\rho)} \\
+                      & = \int_{\mathcal{X}} k^*(x,\cdot) g d \rho \\
+  \end{align*}
+  $f$ is any element of $L^2(/rho)$.
+
+  Thus, the adjoint of the embedding of $\mathcal{K}$ into $L^2(\rho)$ is a compact integral operator on $L^2(\rho)$.
+
+  WHAT IS g???
+\end{definition}
+
+\begin{lemma}
+  In the case that $\rho = \mu_X$, the evalutation of the target function at $x \in \mathcal{X}$ can be expressed as:
+
+  \begin{equation}
+    f_{\tau, l}(x) = \sum^l_{i=1} \frac{\alpha_i(\tau)}{\lambda_i} \left< \iota k_x , \phi_i \right>_{L^2(\mu_X)} = \sum^l_{i=1} \frac{\alpha_i(\tau)}{\sqrt{\lambda_i}} \psi_i(x)
+    \label{eq:targetFunctionSum}
+  \end{equation}
+\end{lemma}
+
+
+\begin{definition}[Rework $\mathcal{X}$]
+  $\mathcal{X}$ has the structure of a metric space. \\
+  $\Sigma_{\mathcal{X}}$ is a Borel $\sigma$-algebra. \\
+  $\mu_X$ is a Borel Probability Measure with compact support $\mathcal{X}_\mu \subseteq \mathcal{X}$.
+
+  Given a subset $S \subseteq \mathcal{X}$, use the notation $\mathcal{K}(S)$ to represent the RKHS on S with reproducing kernel $k \rvert_{S \times S}$. \\
+  Define $C(S)$ as the space of complex-valued continuous functions on $S$. \\
+  Define $C_b(S)$ as the Banach space of bounded functions in $C(S)$, equipped with the uniform norm. \\
+  $C(S) = C_b(S)$ if $S$ is compact.
+\end{definition}
+
+\begin{lemma}
+  $\mathcal{K}(S)$ embeds naturally and isometrically into $\mathcal{K}$ (Can be seen as a subspace).
+\end{lemma}
+
+\begin{definition}[Mercer Kernel]
+  A Mercer Kernel is a continuous kernel Function. \\
+  They have the property that their associated RKHS is a subset of $C(\mathcal{X})$. \\
+  Also, for any compact $S \subseteq \mathcal{X}$, the embedding $\mathcal{K}(S) \hookrightarrow C(S)$ is bounded.
+\end{definition}
+
+\begin{lemma}
+  If $S$ is the support $\mathcal{\rho}$ of a finite Borel measure $\rho$ on $\mathcal{X}$, then $C(\mathcal{X}_\rho)$ embeds into $L^2(\rho)$ via a bounded linear map. \\
+  Then,
+  $$
+  \iota_\rho : \mathcal{K}(\mathcal{X}_\rho) \rightarrow L^2(\rho)
+  $$
+  is a bounded, injective operator.
+
+  Also, as $k$ is continuous and $\mathcal{X}_\rho$ is compact, then $G_\rho = \iota_\rho \iota_\rho^*$ is a trace-class (therefore compact) operator. The trace norm is:
+  $$
+  \text{tr} G_\rho = \int_{\mathcal{X}} k(x,x) d \rho(x)
+  $$
+  $G_\rho$ being compact is equivalent to $\iota_\rho$ being compact. See \cite{Brislawn}.
+\end{lemma}
+
+\begin{theorem}[Mercer's Theorem]
+  For any $x, x' \in X_\rho$ the kernel $k(x,x')$ can be expressed through the series expansion of the orthonomormal functions in $\mathcal{K}$ associated with eigenvalues $\lambda_i$ of $G_\rho$.
+  \begin{equation}
+    \label{eq:mercersTheorem}
+    k(x,x') = \sum_{i : \lambda_i > 0} \psi_i^*(x) \psi_i(x)
+  \end{equation}
+  The Convergence of this sum over $i$ is uniform on $\mathcal{X}_\rho \times \mathcal{X}_\rho$.
+\end{theorem}
+
+\begin{corollary}
+  The restrictions of $\psi_i$ to $X_\rho$ form an orthonormal basis of $\mathcal{K}(X_\rho)$.  
+\end{corollary}
+
+\begin{lemma}
+  Every strictly positive-definite Mercer kernel is $L^2(\rho)$ strictly positive for any compactly supported, finite Borel measure $\rho$. See \cite{Bharath}
+\end{lemma}
+
+THIS IS HOW WE GENERATE HYPOTHESIS SPACES - The target function associated with a Mercer kernel is an RKHS function defined on the whole of $\mathcal{X}$,
+whose behaviour outside of $\mathcal{X}_\mu$ makes no contribution to the mean squared error.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Data Driven Target Function}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Supervised Learning Scenario}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We have access to a training dataset consisting of pairs:
+$$
+(x_1, y_1), (x_2, y_2),\dots, (x_n, y_n)
+$$
+where $x_i = X(\omega_i)$ and $y_i = Y(\omega_i)$ on an unknown collection of points $\omega_1, \dots, \omega_n \in \Omega$.
+
+These $\omega_i$ are on a single trajectory, and at a fixed sampling interval $\Delta t > 0$:
+\begin{equation}
+  \omega_i = \Phi^{T_i}(\omega_1), t_i = (i-1) \Delta t
+  \label{eq:dataset}
+\end{equation}
+
+\begin{definition}[Empirical Probability Measure]
+  For any training dataset, there is a probability measure on the $\sigma$-algebra $\mathcal{F}$ of $\Omega$:
+  \begin{align*}
+    \mu_n : \mathcal{F} & \rightarrow [0,1] \\
+            \omega & \mapsto \sum_{i = 1}^n \frac{\delta_{\omega_i}(\omega)}{n}   
+  \end{align*}
+  Where $\delta_{\omega_i}$ is the Dirac-delta measure on $\{\omega_i\} \in \Omega$
+
+  There is similarly an empirical covariant probability measure:
+  \begin{align*}
+    \mu_{X,n} : \Sigma_{\mathcal{X}} & \rightarrow [0,1] \\
+            x & \mapsto \sum_{i = 1}^n \frac{\delta_{x_i}(x)}{n}   
+  \end{align*}
+\end{definition}
+
+\begin{definition}[Empirical Hilbert Spaces]
+  $L^2(\mu_n)$ consists of equivalence classes of complex-valued, measurable functions on $\Omega$ that have common values at $w_i$. \\
+  It therefore has, at most, a dimension of $n$ (less if the points $\omega_i$ are not unique). \\
+  It can therefore be embedded into $\mathbb{C}^n$, with any $f : \Omega \rightarrow \mathbb{C}$ having the equivalence class $\mathbf{f} := \left[ f(\omega_1), \dots, f(\omega_n) \right]$.
+  with the dot product $\left< \mathbf{f},\mathbf{g} \right> = \frac{\mathbf{f} \cdot \mathbf{g}}{n}$. \\
+  The same can be said of $L^2(\mu_{X,n})$, with operators on $L^2(\mu_n)$ and $L^2(\mu_{X,n})$ being $n \times n$ complex matrices.
+\end{definition}
+
+\begin{definition}[Isometric Embeddings]
+  \begin{align*}
+    \Xi_n : L^2(\mu_{X,n}) & \rightarrow L^2(\mu_n) \\
+            f & \mapsto f \circ X
+  \end{align*}
+  We then, as before, denote the image $\Xi_n L^2(\mu_{X,n})$ as $L^2_X(\mu_n)$ and let $\Pi_{X,n} : L^2(\mu_n) \rightarrow L^2(\mu_n)$ be the orthogonal projection into $L^2_X(\mu_n)$.
+
+  For distinct training data (the typical situation), then $\Pi_{X,n}$ is the identity and $\Xi_n$ is unitary, even if $X$ is non-injective on sets of positive $\mu$-measure.
+\end{definition}
+
+\begin{definition}[Shift Operator]
+  We aim to define a Koopman Operator on $L^2(\mu_n)$, however the composition operator w.r.t dynamic flow does not lift to an operator on the function equivalence classes. For example,
+  $f,f': \Omega \rightarrow \mathbb{C}$ might lie in the same $L^2(\mu_n)$ equivalence class, however $U^\tau f = f \circ \Phi^t$ and $U^\tau f' = f' \circ \Phi^t$ may lie in different equivalence classes.
+
+  So we define the \textbf{shift operator}:
+  \begin{align*}
+    U^q_n : L^2(\mu_n) & \rightarrow L^2(\mu_n) \\
+    f(\omega_i) & \mapsto \begin{cases}
+            f(\omega_{i+q}), \text{ if } i + q \leq n \\
+            0, \text{ otherwise}
+    \end{cases}
+  \end{align*}
+  We define the resulting \textbf{analog vector} for $\tau = q \Delta t$ as:
+$$
+\mathbf{y}_\tau = U^q_n \iota_n Y (\omega_1) = \left[y_{1+q}, \dots, y_n, 0, \dots, 0 \right] 
+$$
+\end{definition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Theorem 11}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{theorem}\label{thm:11}
+  Let $k: \mathcal{X} \times \mathcal{X} \rightarrow \mathbb{C}$ be an $L^2(\mu_X)$-strictly-positive kernel with corresponding RKHS $\mathcal{K}$. 
+  Then, for any response variable $U^\tau Y \in L^2(\mu)$ and lead time $\tau \geq 0$, as $l \rightarrow \infty$, the target functions $f_{\tau, l}$
+  converge to the conditional expectation $\mathbb{E}[U^\tau Y | X] = X \cdot Z_\tau$, in the sense that 
+  $$
+  \lim_{l \rightarrow \infty} \lVert \iota f_{\tau, l} - Z_\tau \rVert^2_{L^2(\mu_X)} = 0.
+  $$
+\end{theorem}
+\begin{proof} 
+ TODO 
+\end{proof}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\section{Main Theory}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{theorem}[Uniform Convergence of KAF Target Function]\label{thm:14}
+  Under the basic assumptions for convergence, for every lead time $\tau = q \Delta t, q \in \mathbb{N}_0$, and hypothesis space dimension $l$ such that $\lambda_l > 0$, 
+  the KAF target function $f_{\tau,l,n} \in \mathcal{K}_n$ converges as $n \rightarrow \infty$ to the ideal target function $f_{\tau,l} \in \mathcal{K}$, uniformly on $\mathcal{U}$.
+  Moreover, if the reproducing kernel $k$ of $\mathcal{K}$ is $L^2(\mu_X)$-strictly-positive-definite, then by Theorem \ref{thm:11}, $f_{\tau,l,n}$ converges to the regression function $Z_\tau$
+  associated with the conditional expectation, $\mathbb{E}[U^\tau Y | X] = Z_\tau \cdot X$, in the sens of the iterated limit
+
+  $$
+  \lim_{l \rightarrow \infty} \lim_{n \rightarrow \infty} f_{\tau, l, n} = \lim_{l \rightarrow \infty} = Z_\tau
+  $$
+  Here, the $n \rightarrow \infty$ and $l \rightarrow \infty$ limits are takken in $C(\mathcal{U})$ and $L^2(\mu_X)$ norm, respectively. Moreover, the convergence is uniform 
+  with respect to $\tau$ lying in compact sets.
+\end{theorem}
+
+
