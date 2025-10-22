@@ -180,23 +180,23 @@ that consistently approximate the regression function $Z_\tau$.
 \section{Reproducing Kernel Hilbert Spaces}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-In the following section we define and construct a subspace of functions $\mathcal{H} \subseteq \mathbb{L}^2(\mu)$ with a convenient structure
-to simplify the search for optimal approximations of the regression function. We must first, however, define the \textbf{Inclusion Map}:
+In the following section we define and construct a subspace of functions $H \subseteq L^2(\mu)$ with a convenient structure
+to simplify the search for optimal approximations of the regression function. We must first, however, define the \textbf{Quotient Map}:
 $$
-  \iota : \mathbb{L}^2(\mu_X) \rightarrow L^2(\mu_X)
+  q : \mathbb{L}^2(\mu_X) \rightarrow L^2(\mu_X)
 $$
-This linear map associates a function $f$ to its equivalence class $\iota f$. We may now use this to adapt the mean squared error (Equation \ref{eq:meanSquareError})
+This linear map associates a function $f$ to a representative of its equivalence class $q f \in \lfloor f \rfloor$. We may now use this to adapt the mean squared error (Equation \ref{eq:meanSquareError})
 to the \textbf{Generalization Error} $\mathcal{E}_\tau : \mathbb{L}^2(\mu_X) \rightarrow \mathbb{R}$:
 
 \begin{equation}
-  \mathcal{E}_\tau(f) =  \lVert \iota f \circ X - U^\tau Y \rVert^2_{L^2(\mu)} 
+  \mathcal{E}_\tau(f) =  \lVert q f \circ X - U^\tau Y \rVert^2_{L^2(\mu)} 
   \label{eq:generalizationError}
 \end{equation}
 
 To ease the formulation of the following lemma, let us define the \textbf{Excess Generalization Error} as:
 
 \begin{equation}
-  \mathcal{A}_\tau(f) =  \lVert \iota f - Z_\tau \rVert^2_{L^2(\mu_X)} 
+  \mathcal{A}_\tau(f) =  \lVert q f - Z_\tau \rVert^2_{L^2(\mu_X)} 
   \label{eq:generalizationError}
 \end{equation}
 
@@ -259,6 +259,71 @@ Due to this reproducing property of $\mathcal{K}$, we are able to define the \te
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Compact embedding of the RKHS}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\begin{lemma}
+% Due to the \textbf{Axiom of Choice}, we can state that all explicitly constructable Hilbert Spaces of complex-valued functions are necessarily RKHSs.
+%\end{lemma}
+%\begin{proof}
+%  TODO  
+%\end{proof}
+
+\begin{theorem}
+  The RKHS described above is compactly embedable into $L^2(\mu_X)$.
+\end{theorem}
+\begin{proof}
+ TODO 
+\end{proof}
+
+
+Now that we know the RKHS is compactly embedable, let us define the map
+$$
+\iota: \mathcal{K} \rightarrow L^2(\mu_X)
+$$ 
+as this compact embedding. 
+
+\begin{lemma}
+  \label{lem:compactOperators}
+ An operator between Hilbert Spaces is compact if, and only if, its adjoint is compact. 
+\end{lemma}
+\begin{proof}
+  BLACK BOX
+\end{proof}
+
+As $\iota$ is a compact embedding between two Hilbert Spaces then, according to Lemma \ref{lem:compactOperators}, its adjoint 
+$$
+\iota^*: L^2(\mu_X) \rightarrow \mathcal{K} 
+$$
+is well-defined and also compact. We can now define the self-adjoint, compact operator 
+$$
+G := \iota \iota^* : L^2(\mu_X) \rightarrow L^2(\mu_X)
+$$
+
+\begin{theorem}[Spectral Theorem for Compact, Self-Adjoint operators]
+  There exists an orthonormal basis $\{\phi_i\}_{i=1}^\infty$ of $L^2(\mu_X)$ consisting of the eigenfunctions of $G$, with non-negative corresponding eigenvalues $\lambda_i$.
+\end{theorem}
+\begin{proof}
+ BLACK BOX 
+\end{proof}
+
+Now that we have an orthonormal basis of $L^2(\mu_X)$, for each positive eigenvalue $\lambda_i > 0$ we can define $\psi_i: L^2(\mu_X) \rightarrow \mathcal{K}$:
+
+\begin{equation}
+  \psi_i = \iota^* \frac{\phi_i}{\sqrt{\lambda_i}}
+  \label{eq:orthonormalSet}
+\end{equation}
+
+These $\psi_i$ form the orthonormal eigenfunctions of the operator $\tilde{G} := \iota^* \iota$ on $\mathcal{K}$.
+
+%For any $l \in \mathbb{N}$, such that $\lambda_l > 0$, we are now able to define a finite dimensional hypothesis space $\mathcal{H}_l \subseteq \mathcal{K}$ as
+
+%\begin{equation}
+%  \mathcal{H}_l = \text{span}\{\psi_1, \dots, \psi_l\}
+%  \label{eq:finiteHypothesisSpace}
+%\end{equation}
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -270,7 +335,7 @@ Due to this reproducing property of $\mathcal{K}$, we are able to define the \te
   Then, for any response variable $U^\tau Y \in L^2(\mu)$ and lead time $\tau \geq 0$, as $l \rightarrow \infty$, the target functions $f_{\tau, l}$
 converge to the conditional expectation $Z_\tau \circ X$, in the sense of the excess generalization error (Equation \ref{eq:generalizationError}) 
   $$
-  \lim_{l \rightarrow \infty} \lVert \iota f_{\tau, l} - Z_\tau \rVert^2_{L^2(\mu_X)} = 0.
+  \lim_{l \rightarrow \infty} \lVert q f_{\tau, l} - Z_\tau \rVert^2_{L^2(\mu_X)} = 0.
   $$
 \end{theorem}
 \begin{proof} 
@@ -280,7 +345,7 @@ converge to the conditional expectation $Z_\tau \circ X$, in the sense of the ex
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 \section{Main Theory}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{theorem}[Uniform Convergence of KAF Target Function]\label{thm:14}
   Under the basic assumptions for convergence, for every lead time $\tau = q \Delta t, q \in \mathbb{N}_0$, and hypothesis space dimension $l$ such that $\lambda_l > 0$, 
