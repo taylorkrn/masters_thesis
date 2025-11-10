@@ -106,7 +106,7 @@ Let us now define a measure $\mu_X$ on $\mathcal{X}$, as the pushforward of $\mu
 This is well-defined, as $X$ is a $\mu$-measurable function. We can therefore also define the Hilbert-Space $L^2(\mu_X)$ of equivalence classes
 of square-integrable functions from $\mathcal{X}$ to $\mathbb{C}$. Furthermore, $X$ also induces a Sub $\sigma$-Algebra 
 $\mathcal{G} \subseteq \mathcal{F}$ on $\Omega$, with $\mathcal{G} := X^{-1}(\Sigma_X)$. We now define $\mathbb{L}^2_{\mathcal{G}}(\mu)$ 
-(and subsequently $L^2_{\mathcal{G}}(\mu)$) as the set of square-integrable functions that take constant values on subsets of $\Omega$ where
+(and subsequently $L^2_{\mathcal{G}}(\mu)$) as the set of square-integrable functions that take constant values on $\mu$-measurable subsets of $\Omega$ where
 $X$ is constant. We label such a function $g \in \mathbb{L}^2_{\mathcal{G}}(\mu)$ as being \textbf{$\mathcal{G}$-measurable} and
 $$
 \forall T \in \mathcal{F} \setminus \mathcal{G}, g(T) = 0
@@ -197,7 +197,7 @@ To ease the formulation of the following lemma, let us define the \textbf{Excess
 
 \begin{equation}
   \mathcal{A}_\tau(f) =  \lVert q f - Z_\tau \rVert^2_{L^2(\mu_X)} 
-  \label{eq:generalizationError}
+  \label{eq:excessGeneralizationError}
 \end{equation}
 
 \begin{lemma}
@@ -219,13 +219,13 @@ is equivalent to minimizing $\mathcal{A}_\tau$.
 
 \begin{definition}[RKHS]
   For each $x \in \mathcal{X}$, let $L_x : \mathcal{K} \rightarrow \mathbb{C}$ be the evaluation function defined by $L_x f = f(x)$.
-  The space $\mathcal{K}$ is an RKHS if $L_x$ is bounded at every $x \in \mathcal{X}$. 
+  The space $\mathcal{K}$ is an RKHS if $L_x$ is bounded at every $x \in \mathcal{X}$.
 \end{definition}
 
 \begin{theorem}[Riesz Representation Theorem]
   For every $x \in \mathcal{X}$, there exists some function $k_x \in \mathcal{K}$ such that $\forall f \in \mathcal{K}$
   $$
-  L_x f = \left<k_x, f\right>_{\mathcal{K}}
+  L_x f = \left<k_x, f\right>_{\mathcal{K}} = f(x)
   $$
 \end{theorem}
 \begin{proof}
@@ -239,96 +239,232 @@ Due to this reproducing property of $\mathcal{K}$, we are able to define the \te
 \end{align*}
 
 \begin{lemma}
-  The reproducing kernel is \\
+  This reproducing kernel function $k$ is \\
   (i) Conjugate Symmetric \\
   (ii) Positive Definite
 \end{lemma}
 \begin{proof}
-  TODO
+  (i) $k(x,y) = \left< k_x, k_y \right>_{\mathcal{K}} = \overline{\left< k_y, k_x \right>_{\mathcal{K}}} = \overline{k(y,x)}$ \\
+  (ii) TODO
 \end{proof}
 
+Let us define the quotient embedding of the RKHS into $L^2(\mu_X)$, similarly to how we defined the quotient map above, as the identity mapping of a function in $\mathcal{K}$ to a representative of its equivalence class in $L^2(\mu_X)$:
+\begin{align*}
+  \iota: \mathcal{K} & \rightarrow L^2(\mu_X) \\
+          f & \mapsto \iota f
+\end{align*}
 
-\begin{theorem}[Moore-Aronszajn Theorem]
-  For any conjugate-symmetric, positive-definite kernel function $k$, there exists a unique RKHS on $\mathcal{X}$ for which $k$ is the reproducing kernel.
+We assume that this operator is continuous, meaning that every $f \in \mathcal{K}$ maps to exactly one representative of an equivalence class in $K := \iota \mathcal{K} \subseteq L^2(\mu_X)$.
+The adjoint of the identity embedding then immediately presents the utility of the RKHS method, as we observe that $\iota^*: L^2(\mu_X) \rightarrow \mathcal{K}$
+represents the integral operator:
+\begin{align*}
+  \iota^* f (x) & = \left< k_x, \iota^* f \right>_{\mathcal{K}} \\
+                & = \left< \iota k_x, f \right>_{L^2(\mu_X)} \\ 
+                & = \int_{\mathcal{X}} \overline{k(x, y)} f(y) d \mu_X(y) \\
+                & = \int_{\mathcal{X}} k(y, x) f(y) d \mu_X(y)
+\end{align*}
 
-  There is a one-to-one correspondence between kernels and RKHSs.
-\end{theorem}
-\begin{proof}
-  BLACK BOX 
-\end{proof}
 
+Next, let us define the following linear operator on $\mathcal{K}$ 
+\begin{align*}
+  T^{\mathcal{K}}_k: \mathcal{K} & \rightarrow \mathcal{K} \\
+                              f  & \mapsto \iota^* \iota f
+\end{align*}
+and similarly the following on $L^2(\mu_X)$:
+\begin{align*}
+  T^{L^2}_k: L^2(\mu_X) & \rightarrow L^2(\mu_X) \\
+                     f  & \mapsto \iota \iota^* f
+\end{align*}
+Both of these operators are continuous, positive semi-definite, self-adjoint operators, which, if we assume that $k \in L^2(\mathcal{X} \times \mathcal{X}, \mu_X \otimes \mu_X)$, are then also compact \cite{Wnuk}.
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Compact embedding of the RKHS}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%\begin{lemma}
-% Due to the \textbf{Axiom of Choice}, we can state that all explicitly constructable Hilbert Spaces of complex-valued functions are necessarily RKHSs.
-%\end{lemma}
+%\begin{theorem}[Moore-Aronszajn Theorem]
+%  For any conjugate-symmetric, positive-definite kernel function $k$, there exists a unique RKHS on $\mathcal{X}$ for which $k$ is the reproducing kernel.
+%
+%  There is a one-to-one correspondence between kernels and RKHSs.
+%\end{theorem}
 %\begin{proof}
-%  TODO  
+%  BLACK BOX 
 %\end{proof}
+%
+
+%From now on, we will assume that the reproducing kernel function $k: \mathcal{X} \times \mathcal{X} \rightarrow \mathbb{C}$ is continuous.
+%\begin{lemma}
+%  The $T^{L^2, L^2}_k$ operator is a trace-class operator with trace:
+%  $$
+%  \text{trace}T_k = \int_{\mathcal{X}} k(x,x) d \mu(x)
+%  $$
+%\end{lemma}
+
+\begin{lemma}[Spectral Theorem for Compact, Self-Adjoint operators]
+  \label{lem:spectralTheory}
+  There exists an orthonormal basis $\{\phi_i\}_{i=1}^\infty$ of $L^2(\mu_X)$ consisting of the eigenfunctions of $T^{L^2}_k$, with non-negative corresponding eigenvalues $\lambda_i$.
+\end{lemma}
+\begin{proof}
+ BLACK BOX 
+\end{proof}
+
 
 \begin{theorem}
-  The RKHS described above is compactly embedable into $L^2(\mu_X)$.
+  Due to Lemma \ref{lem:spectralTheory}, $T^{L^2}_k$ has an orthonormal basis of eigenfunctions $\{ \phi_i \}_i \subset L^2(\mu_X)$ with corresponding non-negative eigenvalues $\{ \lambda_i \}$.
+Furthermore, the reproducing kernel can now be expressed through the series expansion:
+$$
+k(x,y) = \sum_{i : \lambda_i > 0} \lambda_i \overline{\phi_i(x)} \phi_i(y)
+$$
+with convergence being absolute and uniform on $L^2(\mathcal{X} \times \mathcal{X})$.
+\end{theorem}
+\begin{proof}
+  TODO or BLACK BOX
+\end{proof}
+
+So, we know that $\forall i: \lambda_i > 0$, $T^{L^2, L^2}_k \phi_i = \lambda_i \phi_i$ and we now wish to form an orthonormal basis $\{\psi_i\}_i$ of $\mathcal{K}$, such that
+$T^{\mathcal{K}}_k \psi_i = \lambda_i \psi_i$.
+
+\begin{lemma}
+  The set $\left\{ \psi_i : \iota^* \frac{\phi_i}{\sqrt{\lambda_i}} \right\}_i$ are eigenfunctions of $T_k^{\mathcal{K}}$ with corresponding eigenvalues $\lambda_i$.
+\end{lemma}
+\begin{proof}
+For any arbitrary $i$, such that $\lambda_i > 0$, let us observe $\psi_i(\cdot) = \iota^* \frac{\phi_i(\cdot)}{\sqrt{\lambda_i}} = \int_{\mathcal{X}} k(x,\cdot) \frac{\phi_i(x)}{\sqrt{\lambda_i}} d \mu_X(x)$.
+
+%\begin{align*}
+%  \psi_i(\cdot) = \iota^* \frac{\phi_i (\cdot)}{\sqrt{\lambda_i}} & = \int_{\mathcal{X}} k(x,\cdot) \frac{\phi_i(x)}{\sqrt{\lambda_i}} d \mu(x) \\ 
+%                       & = \int_{\mathcal{X}} \sum_j \lambda_j \overline{\phi_j(x)} \phi_j(\cdot) \frac{\phi_i(x)}{\sqrt{\lambda_i}} d \mu(x) \\
+%                       & = \int_{\mathcal{X}} \sqrt{\lambda_i} \phi_i(\cdot) \overline{\phi_i(x)} \phi_i(x) d \mu(x) \\
+%                       & = \sqrt{\lambda_i} \phi_i(\cdot) \int_{\mathcal{X}} \overline{\phi_i(x)} \phi_i(x) d \mu(x) \\
+%                       & = \sqrt{\lambda_i} \lVert \phi_i \rVert^2_{L^2(\mu_X)} \phi_i(\cdot) \\
+%                       & = \sqrt{\lambda_i} \phi_i(\cdot)
+%\end{align*}
+
+We can see that 
+\begin{align*}
+  T^{\mathcal{K}}_k \psi_i(x) & = \left< k_x, T^{\mathcal{K}}_k \psi_i \right>_{\mathcal{K}} \\
+                                           & = \left< k_x, \iota^* \iota \psi_i \right>_{\mathcal{K}} \\
+                                           & = \left< \iota k_x, \iota \psi_i \right>_{L^2(\mu_X)} \\
+                                           & = \left< \iota k_x, \iota \iota^* \frac{\phi_i}{\sqrt{\lambda_i}} \right>_{L^2(\mu_X)} \\
+                                           & = \left< \iota k_x, T^{L^2}_k \frac{\phi_i}{\sqrt{\lambda_i}} \right>_{L^2(\mu_X)} \\
+                                           & = \left< \iota k_x, \lambda_i \frac{\phi_i}{\sqrt{\lambda_i}} \right>_{L^2(\mu_X)} \\
+                                           & = \left< \iota k_x, \sqrt{\lambda_i} \phi_i \right>_{L^2(\mu_X)} \\
+                                           & = \int_{\mathcal{X}} \overline{k(x,y)} \sqrt{\lambda_i} \phi_i(y) d \mu_X (y) \\
+                                           & = \int_{\mathcal{X}} k(y,x) \sqrt{\lambda_i} \phi_i(y) d \mu_X (y) \\
+                                           & = \sqrt{\lambda_i} \int_{\mathcal{X}} k(y,x) \phi_i(y) d \mu_X (y) \\
+                                           & = \lambda_i \int_{\mathcal{X}} k(y,x) \frac{\phi_i(y)}{\sqrt{\lambda_i}} d \mu_X (y) \\
+                                           & = \lambda_i \psi_i(x) \\
+\end{align*}
+So, $\{ \psi_i \}_i$ are eigenfunctions of $T_k^{\mathcal{K}}$ with corresponding eigenvalues $\lambda_i$.
+\end{proof}
+
+
+\begin{theorem}
+  The eigenfunctions $\{ \psi_i \}_i$ form an orthonormal basis of $\mathcal{K}$ 
+\end{theorem}
+\begin{proof}
+The eigenfunctions are orthonormal as 
+\begin{align*}
+  \left< \psi_i, \psi_j \right>_{\mathcal{K}} & = \left< \iota^* \frac{\phi_i}{\sqrt{\lambda_i}}, \iota^* \frac{\phi_j}{\sqrt{\lambda_j}} \right>_{\mathcal{K}} \\ 
+                                              & = \left< \frac{\phi_i}{\sqrt{\lambda_i}}, \iota \iota^* \frac{\phi_j}{\sqrt{\lambda_j}} \right>_{L^2} \\
+                                              & = \left< \frac{\phi_i}{\sqrt{\lambda_i}}, T^{L^2, L^2}_k \frac{\phi_j}{\sqrt{\lambda_j}} \right>_{L^2} \\
+                                              & = \left< \frac{\phi_i}{\sqrt{\lambda_i}}, \sqrt{\lambda_j} \phi_j \right>_{L^2} \\
+                                              & = \frac{\sqrt{\lambda_j}}{\sqrt{\lambda_i}} \left< \phi_i, \phi_j \right>_{L^2} \\
+                                              & = \delta_{i,j} \\
+\end{align*}
+Again due to Lemma \ref{lem:spectralTheory}, $\{ \psi_i \}_i$ form an orthonormal basis of $\mathcal{K}$.
+\end{proof}
+
+Now, we order the eigenvalues in decreasing order, such that, due to the compactness of $T_k^{L^2}$, the sequence $\lambda_1, \lambda_2, \dots$ accumulates only at $0$.
+
+For any $l > 0$, such that $\lambda_l > 0$, we define the $l$-dimensional \textbf{hypothesis space} $\mathcal{H}_l \subseteq \mathcal{K}$ as:
+\begin{equation}
+  \mathcal{H}_l = \text{span}\{\phi_1, \dots, \phi_l\}
+  \label{eq:finiteHypothesisSpace}
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Ideal Target Function}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We now aim to find the minimizer of the error within this hypothesis space. Let us first define the restricted quotient map on $\mathcal{H}_l$:
+
+\begin{align*}
+  \iota |_{\mathcal{H}_l} : \mathcal{H}_l & \rightarrow L^2(\mu_X) \\
+            f & \mapsto \iota |_{\mathcal{H}_l} f 
+\end{align*}
+
+Consequently, the image of $\mathcal{H}_l$ under $L^2(\mu_X)$ inclusion can be defined as $H_l := \iota |_{\mathcal{H}_l} \mathcal{H}_l \subseteq L^2(\mu_X)$.
+
+\begin{lemma}
+ $H_l \subseteq L^2(\mu_X)$ is closed and convex.
+\end{lemma}
+\begin{proof}
+TODO
+\end{proof}
+
+As $H_l$ is closed and convex, we can define the orthogonal projection
+$$
+\Pi_l : L^2(\mu_X) \rightarrow L^2(\mu_X)
+$$
+that maps into $H_l$. This allows us to further deconstruct the excess generalization error $\mathcal{A}_\tau$ defined in Equation \ref{eq:excessGeneralizationError} for any $f \in \mathcal{H}_l$.
+
+\begin{equation}
+  \mathcal{A}_\tau (f) = \lVert \iota |_{\mathcal{H}_l} f - \Pi_l Z_\tau \rVert^2_{L^2(\mu_X)} + \lVert \left( I - \Pi_l \right) Z_\tau \rVert^2_{L^2(\mu_X)}
+  \label{eq:errorProjectionH}
+\end{equation}
+
+The task of finding the minimizer of the error within the $l$-dimensional hypothesis space $\mathcal{H}_l$ is therefore reduced to minimizing $\lVert qf - \Pi_l Z_\tau \rVert^2_{L^2(\mu_X)}$.
+If $\iota |_{\mathcal{H}_l}$ is injective, then it is invertible, and there exists a unique minimizer in $\mathcal{H}_l$, which we call the \textbf{Ideal Target Function}, as it is independent of training data:
+
+\begin{equation}
+  f_{\tau,l} := \left( \iota |_{\mathcal{H}_l} \right)^{-1} \Pi_l Z_\tau
+  \label{eq:idealTargetFunction}
+\end{equation}
+
+The remaining error of such an ideal target function would then be 
+$$
+\mathcal{E}_\tau (f_{\tau,l}) = \sigma_\tau + \lVert \left( I - \Pi_l \right) Z_\tau \rVert^2_{L^2(\mu_X)}
+$$
+
+
+\begin{lemma}
+  When is $\iota |_{\mathcal{H}_l}$ injective?
+\end{lemma}
+\begin{proof}
+ TODO 
+\end{proof}
+
+By defining for each $i$ 
+\begin{equation}
+  \alpha_i(\tau) := \left< \phi_i \circ X, U^\tau Y \right>_{L^2(\mu)}
+  \label{eq:alpha}
+\end{equation}
+we are able to rewrite $Z_\tau \in L^2(\mu_X)$ in terms of the orthonormal basis $\{\phi_i\}_i$ of $L^2(\mu_X)$:
+\begin{equation}
+  Z_\tau = \sum_i \alpha_i(\tau) \phi_i 
+\end{equation}
+
+We can therefore reform our ideal target function in terms of the orthonormal basis $\{\psi_i\}_i$ of $\mathcal{K}$:
+\begin{align*}
+  f_{\tau,l} & = \left( \iota |_{\mathcal{H}_l} \right)^{-1} \Pi_l Z_\tau \\
+             & = \left( \iota |_{\mathcal{H}_l} \right)^{-1} \Pi_l \sum_i \alpha_i(\tau) \phi_i \\
+             & = \left( \iota |_{\mathcal{H}_l} \right)^{-1} \sum_{i=1}^l \alpha_i(\tau) \phi_i \\
+             & = \sum_{i=1}^l \frac{\alpha_i(\tau)}{\sqrt{\lambda_i}} \psi_i \\
+\end{align*}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Moore-Penrose Pseudoinverse}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We define $T := \left( \iota |_{\mathcal{H}_l} \right)^{-1} \Pi_l$ as the pseudoinverse of $\iota |_{\mathcal{H}_l}$.
+
+$T$ reduces to the \textbf{Moore-Penrose Pseudoinverse} $\iota^+$ if $\mathcal{H}$ is a Hilbert Space.
+
+USE LEMMA 5 and LEMMA 6 FROM PAPER TO PROVE FOLLOWING THEOREM.
+
+\begin{theorem}[Dense Image]
+  $K$ is dense in $L^2(\mu_X)$ if, and only if, $T_k^{L^2}$ is a strictly-positive operator
 \end{theorem}
 \begin{proof}
  TODO 
 \end{proof}
 
 
-Now that we know the RKHS is compactly embedable, let us define the map
-$$
-\iota: \mathcal{K} \rightarrow L^2(\mu_X)
-$$ 
-as this compact embedding. 
-
-\begin{lemma}
-  \label{lem:compactOperators}
- An operator between Hilbert Spaces is compact if, and only if, its adjoint is compact. 
-\end{lemma}
-\begin{proof}
-  BLACK BOX
-\end{proof}
-
-As $\iota$ is a compact embedding between two Hilbert Spaces then, according to Lemma \ref{lem:compactOperators}, its adjoint 
-$$
-\iota^*: L^2(\mu_X) \rightarrow \mathcal{K} 
-$$
-is well-defined and also compact. We can now define the self-adjoint, compact operator 
-$$
-G := \iota \iota^* : L^2(\mu_X) \rightarrow L^2(\mu_X)
-$$
-
-\begin{theorem}[Spectral Theorem for Compact, Self-Adjoint operators]
-  There exists an orthonormal basis $\{\phi_i\}_{i=1}^\infty$ of $L^2(\mu_X)$ consisting of the eigenfunctions of $G$, with non-negative corresponding eigenvalues $\lambda_i$.
-\end{theorem}
-\begin{proof}
- BLACK BOX 
-\end{proof}
-
-Now that we have an orthonormal basis of $L^2(\mu_X)$, for each positive eigenvalue $\lambda_i > 0$ we can define $\psi_i: L^2(\mu_X) \rightarrow \mathcal{K}$:
-
-\begin{equation}
-  \psi_i = \iota^* \frac{\phi_i}{\sqrt{\lambda_i}}
-  \label{eq:orthonormalSet}
-\end{equation}
-
-These $\psi_i$ form the orthonormal eigenfunctions of the operator $\tilde{G} := \iota^* \iota$ on $\mathcal{K}$.
-
-%For any $l \in \mathbb{N}$, such that $\lambda_l > 0$, we are now able to define a finite dimensional hypothesis space $\mathcal{H}_l \subseteq \mathcal{K}$ as
-
-%\begin{equation}
-%  \mathcal{H}_l = \text{span}\{\psi_1, \dots, \psi_l\}
-%  \label{eq:finiteHypothesisSpace}
-%\end{equation}
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Convergence of Target Function in RKHS}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{theorem}\label{thm:targetFunctionRKHS}
   Let $k: \mathcal{X} \times \mathcal{X} \rightarrow \mathbb{C}$ be an $L^2(\mu_X)$-strictly-positive kernel with corresponding RKHS $\mathcal{K}$. 
@@ -337,14 +473,173 @@ converge to the conditional expectation $Z_\tau \circ X$, in the sense of the ex
   $$
   \lim_{l \rightarrow \infty} \lVert q f_{\tau, l} - Z_\tau \rVert^2_{L^2(\mu_X)} = 0.
   $$
+
+  Convergence with respect to the (stronger) RKHS $\mathcal{K}$ norm is obtained if $Z_\tau \in K$
 \end{theorem}
 \begin{proof} 
- TODO 
-\end{proof}
+If, and only if, $K$ is a dense subspace of $L^2(\mu_X)$, then we have that
 
+$$
+\mathcal{A}_\tau (f_{\tau,l}) = \sum_{i=l+1}^\infty \lvert \alpha_i (\tau) \rvert^2
+$$
+
+TODO 
+\end{proof}
+%\begin{lemma}
+% Due to the \textbf{Axiom of Choice}, we can state that all explicitly constructable Hilbert Spaces of complex-valued functions are necessarily RKHSs.
+%\end{lemma}
+%\begin{proof}
+%  TODO  
+%\end{proof}
+
+%\begin{theorem}
+%  The RKHS described above is compactly embedable into $L^2(\mu_X)$.
+%\end{theorem}
+%\begin{proof}
+% TODO 
+%\end{proof}
+%
+%
+%Now that we know the RKHS is compactly embedable, let us define the map
+%$$
+%\iota: \mathcal{K} \rightarrow L^2(\mu_X)
+%$$ 
+%as this compact embedding. 
+%
+%\begin{lemma}
+%  \label{lem:compactOperators}
+% An operator between Hilbert Spaces is compact if, and only if, its adjoint is compact. 
+%\end{lemma}
+%\begin{proof}
+%  BLACK BOX
+%\end{proof}
+%
+%As $\iota$ is a compact embedding between two Hilbert Spaces then, according to Lemma \ref{lem:compactOperators}, its adjoint 
+%$$
+%\iota^*: L^2(\mu_X) \rightarrow \mathcal{K} 
+%$$
+%is well-defined and also compact. We can now define the self-adjoint, compact operator 
+%$$
+%G := \iota \iota^* : L^2(\mu_X) \rightarrow L^2(\mu_X)
+%$$
+%
+%
+%Now that we have an orthonormal basis of $L^2(\mu_X)$, for each positive eigenvalue $\lambda_i > 0$ we can define $\psi_i: L^2(\mu_X) \rightarrow \mathcal{K}$:
+%
+%\begin{equation}
+%  \psi_i = \iota^* \frac{\phi_i}{\sqrt{\lambda_i}}
+%  \label{eq:orthonormalSet}
+%\end{equation}
+%
+%These $\psi_i$ form the orthonormal eigenfunctions of the operator $\tilde{G} := \iota^* \iota$ on $\mathcal{K}$.
+%
+%For any $l \in \mathbb{N}$, such that $\lambda_l > 0$, we are now able to define a finite dimensional hypothesis space $\mathcal{H}_l \subseteq \mathcal{K}$ as
+
+%\begin{equation}
+%  \mathcal{H}_l = \text{span}\{\psi_1, \dots, \psi_l\}
+%  \label{eq:finiteHypothesisSpace}
+%\end{equation}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Data-Driven Target Function}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Supervised Learning Scenario}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We now turn to a situation in which we have access to a training dataset consisting of pairs:
+$$
+(x_1, y_1), (x_2, y_2),\dots, (x_n, y_n)
+$$
+where $x_i = X(\omega_i)$ and $y_i = Y(\omega_i)$ on an unknown collection of points $\omega_1, \dots, \omega_n \in \Omega$.
+
+These $\omega_i$ are on a single trajectory, and at a fixed sampling interval $\Delta t > 0$:
+\begin{equation}
+  \omega_i = \Phi^{t_i}(\omega_1), t_i = (i-1) \Delta t
+  \label{eq:dataset}
+\end{equation}
+
+Unlike in well-known methods such as kernel SVMs, KAF does not use the \textit{kernel trick}, instead running a more computationally costly method to compute the orthogonal eigenfunctions.
+This has the benefit of being able to control the parameter $l \ll n$ to control and prevent overfitting to the training data.
+For any training dataset, we define an \textbf{Empirical Probability Measure} on the $\sigma$-algebra $\mathcal{F}$ of $\Omega$:
+\begin{align*}
+  \mu_n : \mathcal{F} & \rightarrow [0,1] \\
+          \omega & \mapsto \sum_{i = 1}^n \frac{\delta_{\omega_i}(\omega)}{n}   
+\end{align*}
+Where $\delta_{\omega_i}$ is the Dirac-delta measure on $\{\omega_i\} \in \Omega$. Similarly, we can define an \textbf{Empirical Covariant Probability Measure}
+on $\Sigma_{\mathcal{X}}$:
+\begin{align*}
+  \mu_{X,n} : \Sigma_{\mathcal{X}} & \rightarrow [0,1] \\
+          x & \mapsto \sum_{i = 1}^n \frac{\delta_{x_i}(x)}{n}   
+\end{align*}
+
+Based on these new finite measures, we can define the \textbf{Empirical Hilbert Spaces} $L^2(\mu_n)$ and $L^2(\mu_{X,n})$. $L^2(\mu_n)$ consists of equivalence classes of complex-valued, measurable functions on $\Omega$ that have common values at $w_i$.
+It therefore has, at most, a dimension of $n$ (less if the points $\omega_i$ are not unique) and can therefore be embedded into $\mathbb{C}^n$.
+Any $f \in \mathbb{L}^2(\mu_n)$ can be mapped to its $L^2(\mu_n)$ equivalence class by $q_n$:
+\begin{align*}
+  q_n: \mathbb{L}^2(\mu_n) & \rightarrow L^2(\mu_n) \\
+  f(\omega_1) & \mapsto \mathbf{f}(\omega_1) := \left[ f(\omega_1), \dots, f(\omega_n) \right]
+\end{align*}
+with the inner product 
+$$
+\left< \mathbf{f},\mathbf{g} \right> = \frac{\mathbf{f} \cdot \mathbf{g}}{n}.
+$$
+The same can be said of $L^2(\mu_{X,n})$, with operators on $L^2(\mu_n)$ and $L^2(\mu_{X,n})$ being $n \times n$ complex matrices.
+
+We then define $L^2_{\mathcal{G}}(\mu_n)$ as the set of square-integrable functions that take constant values on $\mu_n$-measurable subsets of $\Omega$ where
+$X$ is constant. Again as in the previous section, we define the \textbf{Empirical Isometric Embedding} with range $L^2_{\mathcal{G}}(\mu_n)$ through the following covariate map:
+\begin{align*}
+  \Xi_n : L^2(\mu_{X,n}) & \rightarrow L^2(\mu_n) \\
+          f & \mapsto f \circ X
+\end{align*}
+
+As before, let $\Pi_{\mathcal{G},n} : L^2(\mu_n) \rightarrow L^2(\mu_n)$ be the orthogonal projection into the closed and convex $L^2_{\mathcal{G}}(\mu_n) \subset L^2(\mu_n)$.
+Note that, when the training data samples are distinct (the typical situation), then $\Pi_{X,n}$ is the identity and $\Xi_n$ is unitary, even if $X$ is non-injective on sets of positive $\mu$-measure.
+
+We now wish to define a Koopman Operator on $L^2(\mu_n)$, however the composition operator with respect to dynamic flow does not lift to an operator on the function equivalence classes. This is because $\Phi^\tau$ does not preserve
+null sets with respect to $\mu_n$, meaning that two functions $f,f': \Omega \rightarrow \mathbb{C}$ that lie in the same $L^2(\mu_n)$ equivalence class may lie in different equivalence classes after a certain lead time; $\lfloor f \circ \Phi^t \rfloor_{L^2(\mu_n)} \neq \lfloor f' \circ \Phi^t \rfloor_{L^2(\mu_n)}$.
+
+Using the notation that $\mathbf{f}_i$ is the $i$'th element of $\mathbf{f} \in L^2(\mu_n)$, for any $p >0$, we define the following \textbf{Shift Operator} $U^p_n$, which preserves null sets through the filling of the shifted vector with $0$s:
+\begin{align*}
+  U^q_n : L^2(\mu_n) & \rightarrow L^2(\mu_n) \\
+  \mathbf{f}_i & \mapsto \begin{cases}
+    \mathbf{f}_{i+p}, \text{ if } i + p \leq n \\
+          0, \text{ otherwise}
+  \end{cases}
+\end{align*}
+Subsequently, for $\tau = p \Delta t$, we define the shifted vector $\mathbf{y}_\tau \in \mathbb{C}^n$ as the \textbf{Analog Vector}:
+$$
+\mathbf{y}_\tau = U^p_n q_n Y = \left[\mathbf{y}_{1+p}, \dots, \mathbf{y}_n, 0, \dots, 0 \right] 
+$$
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-\section{Main Theory}
+\subsection{Empirical Error Minimization}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+With this previous definition, we observe the following \textbf{Empirical Generalization Error} $\mathcal{E}_{\tau,n}: \mathbb{L}^2(\mu_n) \rightarrow \mathbb{R}$:
+\begin{equation}
+  \mathcal{E}_{\tau,n}(f) := \lVert q_n f \circ X - U^p_n q_n Y \rVert_{L^2(\mu_n)} 
+  \label{eq:empiricalError}
+\end{equation}
+Analogously to the previous chapter, we know that there is a unique $Z_{\tau,n} \in L^2(\mu_{X,n})$ that satisfies $Z_{\tau,n} = \argmin_{g \in L^2(\mu_{X.n})} \lVert g \circ X - U^p_n q_n Y \rVert_{L^2(\mu_n)}$.
+We can then also split the empirical generalization error 
+$$
+\mathcal{E}_{\tau,n}(f) = \mathcal{A}_{\tau,n}(f) + \sigma_{\tau,n} 
+$$
+into the \textbf{Empirical Excess Generalization Error} 
+$$
+\mathcal{A}_{\tau,n}(f) := \lVert q_n f - Z_{\tau,n} \rVert^2_{L^2(\mu_{X,n})}
+$$
+and  the \textbf{Empirical Intrinsic System Error} 
+$$
+\sigma_{\tau,n} := \lVert Z_{\tau,n} \circ X - U^p_n q_n Y \rVert^2_{L^2(\mu_n)}
+
+$$
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\subsection{Main Theory}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{theorem}[Uniform Convergence of KAF Target Function]\label{thm:14}
